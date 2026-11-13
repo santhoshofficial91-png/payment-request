@@ -105,3 +105,6 @@ alter publication supabase_realtime add table public.payments, public.po, public
 -- Later migration: department / enquiry / debit-to
 -- alter table public.profiles add column department text not null default '';
 -- alter table public.expenses add column enq text not null default '', add column debit_to text not null default '', add column department text not null default '';
+
+-- Later migration: supplier cut-off (2 PM IST): pr_cutoff_over(), executive send blocked in payments_guard,
+-- manager can see/send unsent team requests after cut-off via mgr_send_requests(bigint[]).
