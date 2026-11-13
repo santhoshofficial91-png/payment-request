@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     if (ce || !c?.user) return json({ error: ce?.message || "Could not create the user" }, 400);
     const { error: pe } = await admin.from("profiles").insert({
       id: c.user.id, username, name: str(b.name), email: str(b.email), phone: str(b.phone),
-      role, manager_name: role === "executive" ? str(b.manager_name) : "",
+      role, manager_name: role === "executive" ? str(b.manager_name) : "", department: str(b.department),
     });
     if (pe) { await admin.auth.admin.deleteUser(c.user.id); return json({ error: pe.message }, 400); }
     return json({ ok: true, id: c.user.id });
@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     }
     const { error: pe } = await admin.from("profiles").update({
       username, name: str(b.name), email: str(b.email), phone: str(b.phone),
-      manager_name: old.role === "executive" ? str(b.manager_name) : "",
+      manager_name: old.role === "executive" ? str(b.manager_name) : "", department: str(b.department),
     }).eq("id", id);
     if (pe) return json({ error: pe.message }, 400);
     if (old.role === "manager" && old.name !== str(b.name)) {

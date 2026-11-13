@@ -101,3 +101,7 @@ alter publication supabase_realtime add table public.payments, public.po, public
 -- table public.expenses (id EX-###), expenses_guard trigger (only the admin may change status / accounts remark),
 -- RLS: admin sees all; users see their own; managers also see their team's sent, not-Paid requests;
 -- revoke_expense() lets a manager send a team request back.
+
+-- Later migration: department / enquiry / debit-to
+-- alter table public.profiles add column department text not null default '';
+-- alter table public.expenses add column enq text not null default '', add column debit_to text not null default '', add column department text not null default '';
