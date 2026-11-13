@@ -92,3 +92,7 @@ alter table public.payments replica identity full;
 alter table public.po replica identity full;
 alter table public.profiles replica identity full;
 alter publication supabase_realtime add table public.payments, public.po, public.profiles;
+
+-- Manager team scope + revoke (applied as migration manager_team_scope_and_revoke)
+-- is_my_team(), pay_select / pay_update_staff / pay_insert policies and revoke_request() were updated:
+-- managers see only their own team's requests that are sent and not Paid, and revoke them through revoke_request().
