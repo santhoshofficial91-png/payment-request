@@ -121,7 +121,7 @@ user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 
 users:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.5.6 4 2.6 4 5"/></svg>',
 doc:'<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>',
 clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'};
-var MENU=[['dash','Dashboard','dash'],['prof','Admin Profile','user'],['mgr','Create Manager','user'],['exe','Create Executives','users'],['po','PO Master','doc'],['pay','Payment Request','doc'],['paid','Paid Request','doc'],['sent','Request Sent','doc'],['pod','PO Details','doc']];
+var MENU=[['dash','Dashboard','dash'],['prof','Admin Profile','user'],['mgr','Create Manager','user'],['exe','Create Executives','users'],['po','PO Master','doc'],['pay','Supplier Payment Request','doc'],['paid','Supplier Paid Request','doc'],['sent','Request Sent','doc'],['pod','PO Details','doc'],['exp','Expense Request','doc'],['expaid','Expense Paid Request','doc']];
 var PAY=[];
 var STATS=[['128','Total Requests','doc'],['24','Pending Approval','clock'],['6','Managers','users'],['18','Executives','user']];
 var $=function(id){return document.getElementById(id)};
@@ -129,7 +129,7 @@ var $=function(id){return document.getElementById(id)};
 function td(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
 var PT=null,PM=120000;
 function pmoved(r){return r[13]==='Paid'&&(!r[17]||Date.now()-r[17]>=PM)}
-function schedMove(){clearTimeout(PT);if(!ME||ME.role==='exe')return;var now=Date.now(),nx=null;PAY.forEach(function(r){if(r[13]==='Paid'&&r[17]){var d=r[17]+PM-now;if(d>0&&(nx===null||d<nx))nx=d}});if(nx!==null)PT=setTimeout(movetick,nx+300)}
+function schedMove(){clearTimeout(PT);if(!ME)return;var now=Date.now(),nx=null;PAY.forEach(function(r){if(r[13]==='Paid'&&r[17]){var d=r[17]+PM-now;if(d>0&&(nx===null||d<nx))nx=d}});EXP.forEach(function(r){if(r[6]==='Paid'&&r[10]){var d=r[10]+PM-now;if(d>0&&(nx===null||d<nx))nx=d}});if(nx!==null)PT=setTimeout(movetick,nx+300)}
 function movetick(){if(!ME)return;var a=document.activeElement;if(a&&a.closest&&a.closest('#view')&&/^(INPUT|SELECT)$/.test(a.tagName)){PT=setTimeout(movetick,5000);return}render(CUR)}
 function lead(x){return /^\d+$/.test(String(x))?x+(+x===1?' day':' days'):x}
 function vis(){if(!ME)return [];if(ME.role==='exe')return PAY.filter(function(r){return r[1]===ME.name});if(ME.role==='mgr')return PAY.filter(function(r){return r[16]==='Request Sent'&&r[13]!=='Paid'});return PAY.filter(function(r){return r[16]==='Request Sent'})}
@@ -147,12 +147,12 @@ var SB=window.supabase.createClient('https://ijlapetfddltbgqnwtrp.supabase.co','
 var URLB='https://ijlapetfddltbgqnwtrp.supabase.co',KEYB='sb_publishable_YRIgzX1mumr2ZSIjnRZ3cg_GdsyEqTm',DOMAIN='@expert-pr.app',ROLEMAP={admin:'admin',manager:'mgr',executive:'exe'};
 var PCOL={1:'req_name',2:'enq',3:'req_date',4:'po',5:'supplier',6:'customer',7:'purpose',8:'delivery_date',9:'lead_time',10:'stock_status',11:'stock_location',12:'amount',13:'status',14:'requester_remark',15:'accounts_remark',16:'pr_status',17:'paid_at'};
 var OCOL={0:'enq',1:'po_date',2:'supplier',3:'po_num',4:'po_value',5:'paid',6:'balance',7:'requester'};
-var SNAP={pay:{},po:{}},BUSY=0,RTC=null,RTM=null,POLL=null,LOADING=false,RETRY=null;
+var SNAP={pay:{},po:{},exp:{}},BUSY=0,RTC=null,RTM=null,POLL=null,LOADING=false,RETRY=null;
 function pay2row(d){return [d.id,d.req_name,d.enq,d.req_date,d.po,d.supplier,d.customer,d.purpose,d.delivery_date,d.lead_time,d.stock_status,d.stock_location,Number(d.amount),d.status,d.requester_remark,d.accounts_remark,d.pr_status,Number(d.paid_at)||0,d.returned?'Returned':'',d.n]}
 function po2row(d){return [d.enq,d.po_date,d.supplier,d.po_num,Number(d.po_value),Number(d.paid),Number(d.balance),d.requester||'',d.n]}
 function pvals(r){var o={};Object.keys(PCOL).forEach(function(k){o[PCOL[k]]=r[k]===undefined||r[k]===null?'':r[k]});o.amount=+r[12]||0;o.paid_at=+r[17]||0;o.returned=r[18]==='Returned';return o}
 function ovals(r){var o={};Object.keys(OCOL).forEach(function(k){o[OCOL[k]]=r[k]===undefined||r[k]===null?'':r[k]});['po_value','paid','balance'].forEach(function(c){o[c]=+o[c]||0});return o}
-function snapAll(){SNAP.pay={};PAY.forEach(function(r){SNAP.pay[r[19]]=pvals(r)});SNAP.po={};PO.forEach(function(r){SNAP.po[r[8]]=ovals(r)})}
+function snapAll(){SNAP.pay={};PAY.forEach(function(r){SNAP.pay[r[19]]=pvals(r)});SNAP.po={};PO.forEach(function(r){SNAP.po[r[8]]=ovals(r)});SNAP.exp={};EXP.forEach(function(r){SNAP.exp[r[12]]=evals(r)})}
 function dbErr(e){var m=(e&&e.message)||String(e);if(/duplicate key|po_num_unique/i.test(m))showErr('Duplicate PO number','This PO number already exists in the PO Master.');else showErr('Could not save','The change was not saved: '+m+' The screen is refreshed with the latest data.');loadAll(true)}
 function diffTasks(arr,snap,vals,nidx,tbl,extra){var tasks=[],ins=[],seen={};
  arr.forEach(function(r){var n=r[nidx];if(n===-1){seen[-1]=1;return}if(n===undefined||n===null){ins.push(r);return}seen[n]=1;var nv=vals(r),ov=snap[n]||{},ch={},any=false;Object.keys(nv).forEach(function(c){if(String(nv[c])!==String(ov[c])){ch[c]=nv[c];any=true}});if(any)tasks.push(SB.from(tbl).update(ch).eq('n',n))});
@@ -161,7 +161,7 @@ function diffTasks(arr,snap,vals,nidx,tbl,extra){var tasks=[],ins=[],seen={};
  return tasks}
 function save(){
  if(!ME)return;
- var t=diffTasks(PAY,SNAP.pay,pvals,19,'payments',{requester_id:ME.id}).concat(diffTasks(PO,SNAP.po,ovals,8,'po'));
+ var t=diffTasks(PAY,SNAP.pay,pvals,19,'payments',{requester_id:ME.id}).concat(diffTasks(PO,SNAP.po,ovals,8,'po')).concat(diffTasks(EXP,SNAP.exp,evals,12,'expenses',{requester_id:ME.id}));
  snapAll();
  if(!t.length)return;
  BUSY++;
@@ -173,19 +173,19 @@ async function loadAll(force){
  if(BUSY>0||LOADING){clearTimeout(RETRY);RETRY=setTimeout(function(){loadAll(force)},800);return}
  LOADING=true;
  try{
-  var a=await Promise.all([SB.from('payments').select('*').order('n',{ascending:true}),SB.from('po').select('*').order('n',{ascending:false}),SB.from('profiles').select('*').order('created_at',{ascending:true})]);
+  var a=await Promise.all([SB.from('payments').select('*').order('n',{ascending:true}),SB.from('po').select('*').order('n',{ascending:false}),SB.from('profiles').select('*').order('created_at',{ascending:true}),SB.from('expenses').select('*').order('n',{ascending:true})]);
   var er=a.filter(function(x){return x.error})[0];if(er){console.warn(er.error);return}
   var np=a[0].data.map(pay2row),no=a[1].data.map(po2row),nl={mgr:[],exe:[]};
   a[2].data.forEach(function(p){var r=[p.name,p.username,p.email||'',p.phone||'','',p.manager_name||'',p.id];if(p.role==='manager')nl.mgr.push(r);else if(p.role==='executive')nl.exe.push(r)});
-  if(JSON.stringify([np,no,nl])===JSON.stringify([PAY,PO,LIST])){snapAll();return}
+  var ne=a[3].data.map(exp2row);if(JSON.stringify([np,no,nl,ne])===JSON.stringify([PAY,PO,LIST,EXP])){snapAll();return}
   if(typing()){clearTimeout(RETRY);RETRY=setTimeout(function(){loadAll(force)},1500);return}
-  PAY=np;PO=no;LIST=nl;snapAll();
+  PAY=np;PO=no;LIST=nl;EXP=ne;snapAll();
   var mm=a[2].data.filter(function(p){return p.id===ME.id})[0];if(mm)ME.name=mm.name;
-  if(document.getElementById('view')&&!$('app').classList.contains('hide')){PEDIT=null;POEDIT=null;EDIT=(CUR==='mgr'||CUR==='exe')?EDIT:null;render(CUR)}
+  if(document.getElementById('view')&&!$('app').classList.contains('hide')){PEDIT=null;POEDIT=null;EEDIT=null;EDIT=(CUR==='mgr'||CUR==='exe')?EDIT:null;render(CUR)}
  }finally{LOADING=false}
 }
 function kick(){clearTimeout(RTM);RTM=setTimeout(function(){loadAll()},400)}
-function subRT(){unsubRT();RTC=SB.channel('pr-live').on('postgres_changes',{event:'*',schema:'public',table:'payments'},kick).on('postgres_changes',{event:'*',schema:'public',table:'po'},kick).on('postgres_changes',{event:'*',schema:'public',table:'profiles'},kick).subscribe();POLL=setInterval(function(){loadAll()},20000)}
+function subRT(){unsubRT();RTC=SB.channel('pr-live').on('postgres_changes',{event:'*',schema:'public',table:'payments'},kick).on('postgres_changes',{event:'*',schema:'public',table:'po'},kick).on('postgres_changes',{event:'*',schema:'public',table:'expenses'},kick).on('postgres_changes',{event:'*',schema:'public',table:'profiles'},kick).subscribe();POLL=setInterval(function(){loadAll()},20000)}
 function unsubRT(){if(RTC){try{SB.removeChannel(RTC)}catch(e){}RTC=null}clearInterval(POLL);POLL=null}
 async function adminFn(body){var ss=(await SB.auth.getSession()).data.session;if(!ss)throw new Error('Please sign in again.');var r=await fetch(URLB+'/functions/v1/manage-users',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+ss.access_token,'apikey':KEYB},body:JSON.stringify(body)});var j={};try{j=await r.json()}catch(e){}if(!r.ok)throw new Error(j.error||'Request failed ('+r.status+')');return j}
 PAY.forEach(function(r){if(r[16]===undefined){r[15]=r[15]||'';r[16]=/^PR-00[123]$/.test(r[0])?'Request Sent':'Request Not Sent'}});
@@ -251,22 +251,97 @@ function poPage(v){
 }
 function poFind(p){p=String(p||'').trim().toLowerCase();if(!p)return null;return PO.filter(function(r){return String(r[3]).trim().toLowerCase()===p})[0]||null}
 function showErr(t,m){var ex0=document.getElementById('errm');if(ex0)ex0.remove();var o=document.createElement('div');o.className='ovl';o.id='errm';o.setAttribute('role','alertdialog');o.setAttribute('aria-modal','true');o.innerHTML='<div class="ebox"><h2>'+esc(t)+'</h2><p>'+esc(m)+'</p><button class="btn" id="errok" type="button">OK</button></div>';document.body.appendChild(o);var b=o.querySelector('#errok');b.onclick=function(){o.remove();var a=document.querySelector('.newrow [name="amt"]');if(a)a.focus()};b.focus()}
-var FIL={pay:{},paid:{},dash:{}};
+var FIL={pay:{},paid:{},dash:{},exp:{},expaid:{}};
 var FC={};var FCOLS=[['t'],['n'],['t'],['d'],['t'],['t'],['t'],['l',['Advance','Balance','Against Delivery','Sample']],['d'],['t'],['l',['Ready','Under Production','Yet to Start']],['t'],['t'],['l',['Pending','Under Process','Approved','Paid','Rejected']],['t'],['t'],['l',['Request Sent','Request Not Sent']]];
-FC.pay=FC.paid=FCOLS;FC.dash=[['t'],['t'],['n'],['t'],['l',['Pending','Under Process','Approved','Paid','Rejected']]];
-function fpage(){return CUR==='paid'?'paid':CUR==='dash'?'dash':'pay'}
+FC.pay=FC.paid=FCOLS;FC.exp=FC.expaid=[['t'],['n'],['d'],['t'],['t'],['t'],['l',['Pending','Under Process','Approved','Paid','Rejected']],['t'],['t'],['l',['Request Sent','Request Not Sent']]];FC.dash=[['t'],['t'],['n'],['t'],['l',['Pending','Under Process','Approved','Paid','Rejected']]];
+function fpage(){return CUR==='paid'?'paid':CUR==='dash'?'dash':CUR==='exp'?'exp':CUR==='expaid'?'expaid':'pay'}
 function fnorm(x){return String(x||'').toLowerCase().replace(/[,₹\s]+/g,' ').trim()}
 function frow(page,off,extra,names){var f=FIL[page]||{};return '<tr class="frow">'+(off?'<td></td>':'')+FC[page].map(function(c,i){var v=f[i]||'',h;if(c[0]==='t')h='<input class="fl" data-c="'+i+'" type="text" placeholder="Type to filter" aria-label="Filter" autocomplete="off" value="'+esc(v)+'">';else if(c[0]==='d')h='<input class="fl" data-c="'+i+'" type="date" aria-label="Filter by date" value="'+esc(v)+'">';else{var a=c[0]==='n'?names:c[1];h='<select class="fl" data-c="'+i+'" aria-label="Filter"><option value="">All</option>'+a.map(function(o){return '<option'+(o===v?' selected':'')+'>'+esc(o)+'</option>'}).join('')+'</select>'}return '<td>'+h+'</td>'}).join('')+(extra?'<td></td>':'')+'</tr>'}
-function fbar(p){return '<div class="fbar"><button class="sb" type="button" data-xt="'+p+'">Export to Excel</button>'+(p==='pay'?'<button class="sb" type="button" data-xt="payapp">Export Approved</button>':'')+'<span id="fcount"></span><button class="link" type="button" id="fclr">Clear filters</button></div>'}
-function exportTbl(kind){var tb=document.querySelector('#view .ftab');if(!tb)return;var ths=[].slice.call(tb.tHead.rows[0].cells),keep=[],hd=[];ths.forEach(function(th,i){var t=th.textContent.trim();if(th.querySelector('input[type=checkbox]')||t===''||/^action$/i.test(t))return;keep.push(i);hd.push(t)});
- var si=hd.indexOf('Status'),ai=hd.indexOf('Req Amt')>=0?hd.indexOf('Req Amt'):hd.indexOf('Amount'),out=[hd],app=kind==='payapp';
- [].forEach.call(tb.tBodies[0].rows,function(tr){if(tr.classList.contains('newrow')||tr.querySelector('td[colspan]'))return;if(!app&&tr.style.display==='none')return;var row=keep.map(function(i){var c=tr.cells[i];return c?fcell(c).replace(/[\u{1F512}]/gu,'').replace(/\s+/g,' ').trim():''});if(app&&row[si]!=='Approved')return;if(ai>=0)row[ai]=pnum(row[ai]);out.push(row)});
+function fbar(p,ti){return '<div class="fbar"><button class="sb" type="button" data-xt="'+p+'" data-ti="'+(ti||0)+'">Export to Excel</button>'+(p==='pay'?'<button class="sb" type="button" data-xt="payapp">Export Approved</button>':'')+'<span class="fcount"></span><button class="link fclr" type="button" id="fclr">Clear filters</button></div>'}
+function exportTbl(kind,ti){var tb=document.querySelectorAll('#view .ftab')[ti||0];if(!tb)return;var ths=[].slice.call(tb.tHead.rows[0].cells),keep=[],hd=[];ths.forEach(function(th,i){var t=th.textContent.trim();if(th.querySelector('input[type=checkbox]')||t===''||/^action$/i.test(t))return;keep.push(i);hd.push(t)});
+ var si=hd.indexOf('Status'),ai=['Req Amt','Request Amount','Amount'].map(function(h){return hd.indexOf(h)}).filter(function(x){return x>=0})[0],out=[hd],app=kind==='payapp';
+ [].forEach.call(tb.tBodies[0].rows,function(tr){if(tr.classList.contains('newrow')||tr.querySelector('td[colspan]'))return;if(!app&&tr.style.display==='none')return;var row=keep.map(function(i){var c=tr.cells[i];return c?fcell(c).replace(/[\u{1F512}]/gu,'').replace(/\s+/g,' ').trim():''});if(app&&row[si]!=='Approved')return;if(ai!==undefined)row[ai]=pnum(row[ai]);out.push(row)});
  if(out.length<2){pmsg('There are no rows to export.',1);return}
- var nm={pay:'Payment_Request',payapp:'Approved_Payment_Request',paid:'Paid_Request',dash:'Recent_Payment_Requests',sent:'Request_Sent'}[kind];xfile(nm,out,nm.replace(/_/g,' ').slice(0,31))}
+ var nm={pay:'Payment_Request',payapp:'Approved_Payment_Request',paid:'Paid_Request',dash:'Recent_Payment_Requests',sent:'Request_Sent',exp:'Expense_Request',expaid:'Expense_Paid_Request'}[kind];xfile(nm,out,nm.replace(/_/g,' ').slice(0,31))}
 function fcell(td){var e=td.querySelector('select');if(e)return e.options[e.selectedIndex]?e.options[e.selectedIndex].text:'';e=td.querySelector('input:not([type=checkbox])');if(e)return e.value;return td.textContent}
-function applyFilters(){var page=fpage(),f=FIL[page],tb=document.querySelector('#view .ftab tbody');if(!tb)return;var off=ME.role==='exe'&&page==='pay'?1:0,n=0,t=0,act=Object.keys(f).filter(function(k){return f[k]});
- [].forEach.call(tb.rows,function(tr){if(tr.classList.contains('newrow')||tr.querySelector('td[colspan]'))return;t++;var ok=true;act.forEach(function(k){if(!ok)return;var c=FC[page][+k],cell=tr.cells[+k+off];if(!cell){return}var txt=fcell(cell),q=f[k];if(c[0]==='d'){var p=q.split('-');ok=txt===dt(q)||txt.indexOf(dt(q))>=0}else if(c[0]==='l'||c[0]==='n'){ok=txt.toLowerCase().indexOf(q.toLowerCase())>=0&&(c[0]==='n'?txt.trim().toLowerCase()===q.trim().toLowerCase():true)}else ok=fnorm(txt).indexOf(fnorm(q))>=0});tr.style.display=ok?'':'none';if(ok)n++});
- var el=document.getElementById('fcount');if(el)el.textContent=act.length?'Showing '+n+' of '+t+' requests':'';var cl=document.getElementById('fclr');if(cl)cl.style.display=act.length?'':'none'}
+function applyFilters(){var page=fpage(),f=FIL[page],act=Object.keys(f).filter(function(k){return f[k]}),n=0,t=0;
+ [].forEach.call(document.querySelectorAll('#view .ftab'),function(tb){var off=tb.dataset.off!=null?+tb.dataset.off:(ME.role==='exe'&&page==='pay'?1:0);
+  [].forEach.call(tb.tBodies[0].rows,function(tr){if(tr.classList.contains('newrow')||tr.querySelector('td[colspan]'))return;t++;var ok=true;act.forEach(function(k){if(!ok)return;var c=FC[page][+k],cell=tr.cells[+k+off];if(!cell)return;var txt=fcell(cell),q=f[k];if(c[0]==='d'){ok=txt===dt(q)||txt.indexOf(dt(q))>=0}else if(c[0]==='l'||c[0]==='n'){ok=txt.toLowerCase().indexOf(q.toLowerCase())>=0&&(c[0]==='n'?txt.trim().toLowerCase()===q.trim().toLowerCase():true)}else ok=fnorm(txt).indexOf(fnorm(q))>=0});tr.style.display=ok?'':'none';if(ok)n++})});
+ [].forEach.call(document.querySelectorAll('#view .fcount'),function(el){el.textContent=act.length?'Showing '+n+' of '+t+' requests':''});[].forEach.call(document.querySelectorAll('#view .fclr'),function(cl){cl.style.display=act.length?'':'none'})}
+var EXP=[],EEDIT=null,EUNL=null;
+var ECOL={1:'req_name',2:'req_date',3:'purpose',4:'paid_to',5:'amount',6:'status',7:'requester_remark',8:'accounts_remark',9:'pr_status',10:'paid_at'};
+function exp2row(d){return [d.id,d.req_name,d.req_date,d.purpose,d.paid_to,Number(d.amount),d.status,d.requester_remark,d.accounts_remark,d.pr_status,Number(d.paid_at)||0,d.returned?'Returned':'',d.n,d.requester_id]}
+function evals(r){var o={};Object.keys(ECOL).forEach(function(k){o[ECOL[k]]=r[k]===undefined||r[k]===null?'':r[k]});o.amount=+r[5]||0;o.paid_at=+r[10]||0;o.returned=r[11]==='Returned';return o}
+function epmoved(r){return r[6]==='Paid'&&(!r[10]||Date.now()-r[10]>=PM)}
+var EHEAD=['Request ID','Requester Name','Request Date','Purpose','Paid To','Request Amount','Status','Requester Remark','Accounts Remark','Payment Request Status'];
+var ESTS=['Pending','Under Process','Approved','Paid','Rejected'];
+function eopts(a,sel){return a.map(function(o){return '<option'+(o===sel?' selected':'')+'>'+o+'</option>'}).join('')}
+function enames(list){var n=LIST.exe.concat(LIST.mgr).map(function(e){return e[0]});list.forEach(function(r){if(n.indexOf(r[1])<0)n.push(r[1])});if(ME&&n.indexOf(ME.name)<0)n.push(ME.name);return n}
+function erow(r,mode){var i=EXP.indexOf(r),adm=ME.role==='admin',sent=r[9]==='Request Sent',lock=mode==='paid'&&EUNL!==i,canst=adm&&!lock,own=r[13]===ME.id;
+ var st=canst?'<select data-es="'+i+'" aria-label="Status">'+eopts(ESTS,r[6])+'</select>':(mode==='paid'&&adm?pill(r[6])+' <span title="Locked. Click Edit to change.">🔒</span>':'<select disabled aria-label="Status (only the admin can change it)" title="Only the admin can change the status">'+eopts(ESTS,r[6])+'</select>');
+ var am=(adm&&!lock)?'<input data-eam="'+i+'" type="number" min="0" value="'+esc(r[5])+'" aria-label="Request Amount" autocomplete="off">':inr(r[5]);
+ var ac=(adm&&!lock)?'<input data-ear="'+i+'" value="'+esc(r[8]||'')+'" placeholder="Accounts remark" aria-label="Accounts remark" autocomplete="off">':esc(r[8]||'');
+ var act='';if(mode==='paid'){if(adm)act=lock?'<button class="link" data-eue="'+i+'">Edit</button>':'<button class="link" data-elk="'+i+'">Cancel</button>'}
+ else if(mode==='admin'){act='<button class="link" data-ert="'+i+'">Return Request</button>'}
+ else if(mode==='team'){act='<button class="link" data-erv="'+i+'">Revoke Request</button>'}
+ else if(mode==='own'&&!sent){act='<button class="link" data-ee="'+i+'">Edit</button>'}
+ var pick=mode==='own'?'<td>'+(sent?'':'<input type="checkbox" class="epick" data-p="'+i+'" aria-label="Select '+esc(r[0])+'">')+'</td>':'';
+ return '<tr'+(lock?' class="frozen"':'')+'>'+pick+'<td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(dt(r[2]))+'</td><td>'+esc(r[3])+'</td><td>'+esc(r[4])+'</td><td>'+am+'</td><td>'+st+'</td><td>'+esc(r[7]||'')+'</td><td>'+ac+'</td><td>'+pill(sent?'Request Sent':'Request Not Sent')+(r[11]==='Returned'&&!sent?' <span class="pill Rejected">Returned</span>':'')+'</td>'+(mode==='paid'&&!adm?'':'<td class="pact">'+act+'</td>')+'</tr>'}
+function eentry(withPick){var T=td(),ed=EEDIT!==null?EXP[EEDIT]:null;
+ return '<tr class="newrow">'+(withPick?'<td></td>':'')+'<td class="auto">Auto</td><td class="auto">'+esc(ME.name)+'</td><td class="auto">'+dt(T)+'</td>'+
+ '<td><input form="ef" name="pu" type="text" aria-label="Purpose" placeholder="Purpose" autocomplete="off" required value="'+esc(ed?ed[3]:'')+'"></td>'+
+ '<td><input form="ef" name="pt" type="text" aria-label="Paid To" placeholder="Paid To (name)" autocomplete="off" required value="'+esc(ed?ed[4]:'')+'"></td>'+
+ '<td><input form="ef" name="am" type="number" min="0" step="0.01" aria-label="Request Amount" placeholder="Amount" required value="'+esc(ed?ed[5]:'')+'"></td>'+
+ '<td>'+pill('Pending')+'</td><td><input form="ef" name="rm" type="text" aria-label="Requester Remark" placeholder="Requester Remark" autocomplete="off" value="'+esc(ed?ed[7]:'')+'"></td><td class="auto">—</td><td>'+pill(ME.role==='admin'?'Request Sent':'Request Not Sent')+'</td>'+
+ '<td><button class="add" form="ef" type="submit">'+(ed?'Update':'Add')+'</button>'+(ed?'<button class="link" type="button" data-ec="1">Cancel</button>':'')+'</td></tr>'}
+function etable(page,rows,off,hasAct,names,pre,entry,style){
+ var head=(off?'<th><input type="checkbox" id="eall" class="pk" aria-label="Select all"></th>':'')+EHEAD.concat(hasAct?['Action']:[]).map(function(h){return '<th>'+h+'</th>'}).join('');
+ return '<div class="tw"><table class="entry ftab" data-off="'+off+'" style="min-width:'+(style||1700)+'px"><thead><tr>'+head+'</tr>'+frow(page,off,hasAct,names)+'</thead><tbody>'+(pre||'')+rows+(entry||'')+'</tbody></table></div>'}
+function expPage(v){
+ var adm=ME.role==='admin',mg=ME.role==='mgr',html='';
+ if(adm){
+  var R=EXP.filter(function(r){return r[9]==='Request Sent'&&!epmoved(r)}).reverse();
+  html='<form id="ef"></form><div class="panel" style="margin-top:24px"><div class="ph"><h3>Expense requests received</h3></div>'+fbar('exp',0)+etable('exp',R.map(function(r){return erow(r,'admin')}).join(''),0,true,enames(R),eentry(false),'')+'<div class="ok" id="ok" role="status"></div></div>';
+ }else{
+  var mine=EXP.filter(function(r){return r[13]===ME.id&&!epmoved(r)});
+  html='<form id="ef"></form><div class="panel" style="margin-top:24px"><div class="ph"><h3>My expense requests</h3><button class="btn sec" type="button" id="esendbtn" disabled style="max-width:240px">Send Request</button></div>'+fbar('exp',0)+etable('exp',mine.map(function(r){return erow(r,'own')}).join(''),1,true,enames(mine),'',eentry(true))+'<div class="ok" id="ok" role="status"></div></div>';
+  if(mg){var tm=EXP.filter(function(r){return r[13]!==ME.id&&r[9]==='Request Sent'&&r[6]!=='Paid'}).reverse();
+   html+='<div class="panel" style="margin-top:24px"><div class="ph"><h3>Team expense requests</h3></div>'+fbar('exp',1)+etable('exp',tm.map(function(r){return erow(r,'team')}).join('')||'<tr><td colspan="11">No expense requests from your team.</td></tr>',0,true,enames(tm))+'</div>'}
+ }
+ v.innerHTML='<div class="top"><div><h1>Expense Request</h1><p>'+(adm?'Expense requests sent to you. Only you can change the status. Use Return Request to send one back for correction.':mg?'Raise your own expense requests, tick them and press Send Request. Requests from your team are listed below; you can revoke them.':'Fill the last row and press Add. Then tick the requests and press Send Request to send them to the admin.')+'</p></div></div>'+html;
+ applyFilters();
+ if(!adm){var nr=v.querySelector('.newrow');if(nr&&nr.scrollIntoView&&EEDIT!==null)nr.scrollIntoView({block:'nearest'})}
+}
+function expPaidPage(v){
+ var adm=ME.role==='admin',R=EXP.filter(function(r){return epmoved(r)&&(adm||r[13]===ME.id)}).reverse();
+ v.innerHTML='<div class="top"><div><h1>Expense Paid Request</h1><p>'+(adm?'Expense requests that are fully paid. Only you can edit them.':'Your expense requests that are fully paid.')+'</p></div></div><div class="panel" style="margin-top:24px">'+fbar('expaid',0)+etable('expaid',R.map(function(r){return erow(r,'paid')}).join('')||'<tr><td colspan="11">No paid expense requests yet.</td></tr>',0,adm,enames(R))+'<div class="ok" id="ok" role="status"></div></div>';
+ applyFilters();
+}
+function eRetDlg(i,rev){var r=EXP[i],o=dlg('<h2>'+(rev?'Revoke':'Return')+' request '+esc(r[0])+'?</h2><p>This sends the request back to '+esc(r[1])+' so they can correct it and send it again.</p><input id="rtn" type="text" placeholder="Reason (optional)" aria-label="Reason" autocomplete="off"><div class="row"><button class="btn" type="submit">'+(rev?'Revoke':'Return')+' Request</button><button class="btn sec" type="button" id="dno">Cancel</button></div>');o.querySelector('#dno').onclick=function(){o.remove()};o.querySelector('#rtn').focus();
+ o.firstChild.onsubmit=function(ev){ev.preventDefault();var why=o.querySelector('#rtn').value.trim(),id=r[0],who=r[1];o.remove();
+  if(rev){SB.rpc('revoke_expense',{p_n:r[12],p_reason:why}).then(function(x){if(x.error)throw x.error;return loadAll(true)}).then(function(){render('exp');var ok=$('ok');if(ok){ok.className='ok';ok.textContent=id+' was revoked and sent back to '+who+'.'}}).catch(function(e){showErr('Could not revoke',(e&&e.message)||'Try again.');loadAll(true)})}
+  else{r[9]='Request Not Sent';r[6]='Pending';r[10]=0;r[11]='Returned';r[8]='Returned'+(why?': '+why:' for changes');save();render('exp');var ok=$('ok');if(ok){ok.className='ok';ok.textContent=id+' was returned to '+who+'.'}}}}
+function epickUpd(){var n=document.querySelectorAll('.epick:checked').length,b=$('esendbtn');if(b){b.disabled=!n;b.textContent=n?'Send Request ('+n+')':'Send Request'}}
+document.addEventListener('click',function(e){var t=e.target;if(!t.closest||!t.closest('#view'))return;var b;
+ if(t.id==='esendbtn'){var ix=[].slice.call(document.querySelectorAll('.epick:checked')).map(function(c){return +c.dataset.p}),bad=[];ix.forEach(function(i){var r=EXP[i];if(!String(r[3]).trim()||!String(r[4]).trim()||!(+r[5]>0))bad.push(r[0])});if(bad.length){showErr('Cannot send yet','Purpose, Paid To and Request Amount are required for: '+bad.join(', ')+'.');return}ix.forEach(function(i){EXP[i][9]='Request Sent';EXP[i][11]=''});save();render('exp');var ok=$('ok');if(ok){ok.className='ok';ok.textContent=ix.length+' expense request(s) sent to the admin.'}return}
+ if(b=t.closest('[data-ee]')){EEDIT=+b.dataset.ee;render('exp');return}
+ if(t.closest('[data-ec]')){EEDIT=null;render('exp');return}
+ if(b=t.closest('[data-ert]')){eRetDlg(+b.dataset.ert,false);return}
+ if(b=t.closest('[data-erv]')){eRetDlg(+b.dataset.erv,true);return}
+ if(b=t.closest('[data-eue]')){EUNL=+b.dataset.eue;render('expaid');return}
+ if(b=t.closest('[data-elk]')){EUNL=null;render('expaid');return}
+});
+document.addEventListener('change',function(e){var t=e.target;if(!t.closest||!t.closest('#view'))return;
+ if(t.id==='eall'){[].forEach.call(document.querySelectorAll('.epick'),function(c){c.checked=t.checked});epickUpd();return}
+ if(t.classList.contains('epick')){epickUpd();return}
+ if(t.dataset.ear!=null){EXP[+t.dataset.ear][8]=t.value;save();return}
+ if(t.dataset.eam!=null){var i=+t.dataset.eam,v=+t.value;if(!(v>0)){showErr('Enter a valid amount','The request amount must be more than zero.');render(CUR);return}EXP[i][5]=v;save();render(CUR);var ok=$('ok');if(ok){ok.className='ok';ok.textContent='Amount of '+EXP[i][0]+' updated to ₹'+n2(v)+'.'}return}
+ if(t.dataset.es!=null){var j=+t.dataset.es,nv=t.value,r=EXP[j];r[6]=nv;r[10]=nv==='Paid'?Date.now():0;EUNL=null;save();render(CUR);var ok2=$('ok');if(ok2&&nv==='Paid'){ok2.className='ok';ok2.textContent=r[0]+' is marked Paid. It moves to Expense Paid Request in 2 minutes. Use Edit to change it before that.'}}
+});
+document.addEventListener('submit',function(e){var f=e.target;if(f.id!=='ef')return;e.preventDefault();var q=new FormData(f),pu=String(q.get('pu')||'').trim(),pt=String(q.get('pt')||'').trim(),am=+q.get('am'),rm=String(q.get('rm')||'').trim();
+ if(!pu||!pt||!(am>0)){showErr('Fill all the fields','Purpose, Paid To and Request Amount are required. The amount must be more than zero.');return}
+ if(EEDIT!==null&&EXP[EEDIT]){var r=EXP[EEDIT];r[3]=pu;r[4]=pt;r[5]=am;r[7]=rm;var id=r[0];EEDIT=null;save();render('exp');var o1=$('ok');if(o1){o1.className='ok';o1.textContent=id+' was updated. Tick it and press Send Request to send it again.'}return}
+ EXP.push(['EX-New',ME.name,td(),pu,pt,am,'Pending',rm,'',ME.role==='admin'?'Request Sent':'Request Not Sent',0,'',undefined,ME.id]);save();render('exp');var o2=$('ok');if(o2){o2.className='ok';o2.textContent=ME.role==='admin'?'Expense request was added.':'Expense request was added. Tick it and press Send Request to send it to the admin.'}});
 var PEDIT=null;
 var REQF=[['enq','ENQ Num',2],['po','PO Number',4],['sup','Supplier Name',5],['cus','Customer Name',6],['pur','Purpose',7],['dd','Delivery Date',8],['lt','Lead Time',9],['ss','Stock Status',10],['sl','Stock Location',11],['amt','Req Amt',12]];
 function missingOf(get){return REQF.filter(function(f){var v=String(get(f)==null?'':get(f)).trim();return !v||(f[0]==='amt'&&!(+v>0))}).map(function(f){return f[1]})}
@@ -284,7 +359,7 @@ function payPage(v){
  var rows=(ex?vis().filter(function(r){return r[16]!=='Request Sent'}):vis().filter(function(r){return !pmoved(r)}).reverse()).map(function(r){var i=PAY.indexOf(r),sent=r[16]==='Request Sent',lock=!ex&&r[13]==='Paid'&&UNL!==i,st=(ex||lock)?pill(r[13])+(lock?' <span title="Locked. Click Edit to change.">🔒</span>':''):'<select data-s="'+i+'" aria-label="Status">'+opts(ME.role==='mgr'?STS.filter(function(x){return x!=='Paid'}):STS,r[13])+'</select>',ac=(ex||lock)?esc(r[15]||''):'<input data-ar="'+i+'" value="'+esc(r[15]||'')+'" placeholder="Accounts remark" aria-label="Accounts remark" autocomplete="off">';return '<tr'+(lock?' class="frozen"':'')+'>'+(ex?'<td>'+(sent?'':'<input type="checkbox" class="pick" data-p="'+i+'" aria-label="Select '+r[0]+'">')+'</td>':'')+'<td>'+r[0]+'</td>'+[1,2,3,4,5,6,7,8,9,10,11].map(function(j){return '<td>'+esc(j===3||j===8?dt(r[j]):j===9?lead(r[j]):r[j])+'</td>'}).join('')+'<td>'+((ex||lock)?inr(r[12]):'<input data-am="'+i+'" type="number" min="0" value="'+esc(r[12])+'" aria-label="Req Amt" autocomplete="off">')+'</td><td>'+st+'</td><td>'+esc(r[14]||'')+'</td><td>'+ac+'</td><td>'+pill(sent?'Request Sent':'Request Not Sent')+(r[18]==='Returned'&&!sent?' <span class="pill Rejected">Returned</span>':'')+'</td><td class="pact">'+(!ex?(r[13]==='Paid'?(lock?'<button class="link" data-ue="'+i+'">Edit</button>':'<button class="link" data-lk="'+i+'">Cancel</button>'):(ME.role==='admin'?'<button class="link" data-rt="'+i+'">Return Request</button>':(ME.role==='mgr'?'<button class="link" data-rv="'+i+'">Revoke Request</button>':''))):(sent?'':'<button class="link" data-xe="'+i+'">Edit</button>'))+'</td></tr>'}).join('');
  var sub=ex?'Fill the first row and press Add. Then tick the requests and press Send Request. Sent requests move to the Request Sent page.':(ME.role==='mgr'?'Payment requests from the executives who report to you. Update the status and the accounts remark, or use Revoke Request to send one back to the executive.':'Payment requests sent by your team. Update the status and the accounts remark here. Requests marked Paid move to Paid Request after 2 minutes.');
  var ph=ex?'<div class="ph"><h3>My requests</h3><button class="add" type="button" id="sendbtn" disabled>Send Request</button></div>':'<div class="ph"><h3>Requests received</h3></div>';
- v.innerHTML='<div class="top"><div><h1>Payment Request</h1><p>'+sub+'</p></div></div><form id="rf"></form><div class="panel" style="margin-top:24px">'+ph+fbar('pay')+'<div class="tw"><table class="entry ftab" style="min-width:2900px"><thead><tr>'+head+'</tr></thead><tbody>'+(ex?rows:'')+(ME.role==='mgr'?'':'<tr class="newrow">'+inputs+'</tr>')+(ex?'':rows)+'</tbody></table></div><div class="ok" id="ok" role="status"></div></div>';
+ v.innerHTML='<div class="top"><div><h1>Supplier Payment Request</h1><p>'+sub+'</p></div></div><form id="rf"></form><div class="panel" style="margin-top:24px">'+ph+fbar('pay')+'<div class="tw"><table class="entry ftab" style="min-width:2900px"><thead><tr>'+head+'</tr></thead><tbody>'+(ex?rows:'')+(ME.role==='mgr'?'':'<tr class="newrow">'+inputs+'</tr>')+(ex?'':rows)+'</tbody></table></div><div class="ok" id="ok" role="status"></div></div>';
  applyFilters();
  if(ex&&PEDIT!==null&&PAY[PEDIT]){var er=PAY[PEDIT],mp={rn:1,enq:2,po:4,sup:5,cus:6,pur:7,dd:8,lt:9,ss:10,sl:11,amt:12,rm:14};Object.keys(mp).forEach(function(k){var el=v.querySelector('.newrow [name="'+k+'"]');if(el)el.value=er[mp[k]]||''})}
  if(ex){var nr=v.querySelector('.newrow');if(nr&&nr.scrollIntoView)nr.scrollIntoView({block:'nearest'})}
@@ -300,7 +375,7 @@ function paidPage(v){
  var STS=['Pending','Under Process','Approved','Paid','Rejected'],opts=function(a,sel){return a.map(function(o){return '<option'+(o===sel?' selected':'')+'>'+o+'</option>'}).join('')};
  var pn=LIST.exe.map(function(e){return e[0]});vis().forEach(function(r){if(pn.indexOf(r[1])<0)pn.push(r[1])});var ex=ME.role==='exe',rows=vis().filter(pmoved).reverse().map(function(r){var i=PAY.indexOf(r),lock=ex||UNL!==i,st=lock?pill('Paid')+' <span title="Locked. Click Edit to change.">\uD83D\uDD12</span>':'<select data-s="'+i+'" aria-label="Status">'+opts(STS,r[13])+'</select>',ac=lock?esc(r[15]||''):'<input data-ar="'+i+'" value="'+esc(r[15]||'')+'" placeholder="Accounts remark" aria-label="Accounts remark" autocomplete="off">';return '<tr'+(lock?' class="frozen"':'')+'><td>'+r[0]+'</td>'+[1,2,3,4,5,6,7,8,9,10,11].map(function(j){return '<td>'+esc(j===3||j===8?dt(r[j]):j===9?lead(r[j]):r[j])+'</td>'}).join('')+'<td>'+inr(r[12])+'</td><td>'+st+'</td><td>'+esc(r[14]||'')+'</td><td>'+ac+'</td><td>'+pill(r[16]==='Request Sent'?'Request Sent':'Request Not Sent')+'</td>'+(ex?'':'<td>'+(lock?'<button class="link" data-ue="'+i+'">Edit</button>':'<button class="link" data-lk="'+i+'">Cancel</button>')+'</td>')+'</tr>'}).join('')||'<tr><td colspan="18">No paid requests yet. A request moves here 2 minutes after you mark it Paid.</td></tr>';
  var head=['Request ID','Req Name','ENQ Num','Req Date','PO Number','Supplier Name','Customer Name','Purpose','Delivery Date','Lead Time','Stock Status','Stock Location','Req Amt','Status','Requester Remark','Accounts Remark','Payment Request Status'].concat(ex?[]:['Action']).map(function(h){return '<th>'+h+'</th>'}).join('')+'</tr>'+frow('paid',0,!ex,pn)+'<tr class="hide">';
- v.innerHTML='<div class="top"><div><h1>Paid Request</h1><p>'+(ex?'Your requests that are fully paid.':'Requests that are fully paid. Pending requests stay on the Payment Request page.')+'</p></div></div><div class="panel" style="margin-top:24px">'+fbar('paid')+'<div class="tw"><table class="entry ftab" style="min-width:2700px"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div><div class="ok" id="ok" role="status"></div></div>';applyFilters();
+ v.innerHTML='<div class="top"><div><h1>Supplier Paid Request</h1><p>'+(ex?'Your requests that are fully paid.':'Requests that are fully paid. Pending requests stay on the Payment Request page.')+'</p></div></div><div class="panel" style="margin-top:24px">'+fbar('paid')+'<div class="tw"><table class="entry ftab" style="min-width:2700px"><thead><tr>'+head+'</tr></thead><tbody>'+rows+'</tbody></table></div><div class="ok" id="ok" role="status"></div></div>';applyFilters();
 }
 function sentPage(v){
  var rows=vis().filter(function(r){return r[16]==='Request Sent'&&!pmoved(r)}).reverse().map(function(r){return '<tr><td>'+r[0]+'</td>'+[1,2,3,4,5,6,7,8,9,10,11].map(function(j){return '<td>'+esc(j===3||j===8?dt(r[j]):j===9?lead(r[j]):r[j])+'</td>'}).join('')+'<td>'+inr(r[12])+'</td><td>'+pill(r[13])+'</td><td>'+esc(r[14]||'')+'</td><td>'+esc(r[15]||'')+'</td><td>'+pill('Request Sent')+'</td></tr>'}).join('')||'<tr><td colspan="17">Nothing sent yet. Tick requests on the Payment Request page and press Send Request.</td></tr>';
@@ -317,6 +392,10 @@ function render(k){
     v.innerHTML='<div class="top"><div><h1>'+(ME.role==='admin'?'Admin Dashboard':'Welcome, '+esc(ME.name))+'</h1><p>'+(ME.role==='admin'?'Manage your team and keep payment requests moving.':'Track your payment requests here.')+'</p></div><span class="chip">Live data</span></div>'+
     '<div class="stats">'+STATS.filter(function(s,i){return ME.role==='admin'||i<2}).map(function(s){return '<div class="stat"><div><b>'+cnt(s[1])+'</b><span>'+s[1]+'</span></div><div class="ico">'+I[s[2]]+'</div></div>'}).join('')+'</div>'+
     '<div class="panel"><div class="ph"><h3>Recent Payment Requests</h3><button class="link" data-k="pay">View all</button></div>'+table()+'</div>';applyFilters();
+  }else if(k==='exp'){
+    expPage(v);
+  }else if(k==='expaid'){
+    expPaidPage(v);
   }else if(k==='paid'){
     paidPage(v);
   }else if(k==='pod'){
@@ -342,7 +421,7 @@ async function boot(){
  var role=ROLEMAP[p.role],lab=p.role==='admin'?'Administrator':(p.role==='manager'?'Manager':'Executive')+(p.manager_name?' (reports to '+p.manager_name+')':'');
  start({role:role,name:p.name,label:lab,id:p.id,username:p.username});
  await loadAll(true);subRT();show(true);render(location.hash.slice(1)||'dash');return true}
-function menu(){var A={admin:['dash','prof','mgr','exe','po','pay','paid'],mgr:['dash','pay'],exe:['dash','pay','paid','sent','pod']}[ME.role]||['dash'];return MENU.filter(function(x){return A.indexOf(x[0])>=0})}
+function menu(){var A={admin:['dash','prof','mgr','exe','po','pay','paid','exp','expaid'],mgr:['dash','pay','exp','expaid'],exe:['dash','pay','paid','sent','pod','exp','expaid']}[ME.role]||['dash'];return MENU.filter(function(x){return A.indexOf(x[0])>=0})}
 
 $('lf').addEventListener('submit',async function(e){
   e.preventDefault();var u=$('u').value.trim().toLowerCase(),btn=$('lf').querySelector('button[type=submit],button');$('err').textContent='';if(btn)btn.disabled=true;
@@ -352,11 +431,11 @@ $('lf').addEventListener('submit',async function(e){
   catch(x){console.error('LOGINERR',x&&x.stack||x);$('err').textContent='Could not reach the server. Check your internet connection.'}
   if(btn)btn.disabled=false;
 });
-$('nav').addEventListener('click',function(e){EDIT=null;UNL=null;POEDIT=null;PEDIT=null;var b=e.target.closest('[data-k]');if(b)render(b.dataset.k)});
+$('nav').addEventListener('click',function(e){EDIT=null;UNL=null;POEDIT=null;PEDIT=null;EEDIT=null;EUNL=null;var b=e.target.closest('[data-k]');if(b)render(b.dataset.k)});
 $('view').addEventListener('click',function(e){var b=e.target.closest('[data-k]');if(b)render(b.dataset.k)});
 $('view').addEventListener('click',function(e){var pe=e.target.closest('[data-pe]');if(pe){POEDIT=+pe.dataset.pe;render(CUR);return}if(e.target.closest('[data-pc]')){POEDIT=null;render(CUR);return}var pp=e.target.closest('[data-pp]');if(pp){payDlg(+pp.dataset.pp);return}var pcl=e.target.closest('[data-pcl]');if(pcl){closeDlg(+pcl.dataset.pcl);return}var ue=e.target.closest('[data-ue]');if(ue){UNL=+ue.dataset.ue;render(CUR);return}var lk=e.target.closest('[data-lk]');if(lk){UNL=null;render(CUR);return}var dd=e.target.closest('[data-d]');if(dd){PO.splice(+dd.dataset.d,1);save();render(CUR);return}var b=e.target.closest('[data-e]');if(b){EDIT=+b.dataset.e;render(CUR);$('f_name').focus();return}if(e.target.id==='cx'){EDIT=null;render(CUR)}});
 $('view').addEventListener('click',function(e){var t=e.target;if(t.id==='sendbtn'){var ix=[].slice.call(document.querySelectorAll('.pick:checked')).map(function(c){return +c.dataset.p});var bad=[];ix.forEach(function(i){var m=missingOf(function(x){return PAY[i][x[2]]});if(m.length)bad.push(PAY[i][0]+': '+m.join(', '))});if(bad.length){showErr('Cannot send yet','Fill in every field before sending. '+bad.join(' | '));return}ix.forEach(function(i){PAY[i][16]='Request Sent';PAY[i][18]=''});save();render(CUR);$('ok').textContent=ix.length+' request(s) sent to the admin and moved to Request Sent.';return}if(t.name==='dd'&&t.showPicker){try{t.showPicker()}catch(x){}}});
-$('view').addEventListener('click',function(e){var rt=e.target.closest('[data-rt]');if(rt){retDlg(+rt.dataset.rt);return}var rv=e.target.closest('[data-rv]');if(rv){revDlg(+rv.dataset.rv);return}var xe=e.target.closest('[data-xe]');if(xe){PEDIT=+xe.dataset.xe;render('pay');return}if(e.target.closest('[data-xc]')){PEDIT=null;render('pay');return}var xt=e.target.closest('[data-xt]');if(xt){exportTbl(xt.dataset.xt);return}if(e.target.closest('[data-xp]')){xfile('PO_Master',poAoa(PO));return}if(e.target.closest('[data-xd]')){xfile('My_PO_Details',poAoa(myPOs()));return}if(e.target.closest('[data-xs]')){var n=LIST.exe.length?LIST.exe[0][0]:'Karthik R';xfile('PO_Master_Sample',[PHEAD,[n,'ENQ-1001','2026-11-02','ABC Supplies','PO-5501',100000,40000,60000],[n,'ENQ-1002','2026-11-05','XYZ Traders','PO-5502',250000,0,250000]]);return}});
+$('view').addEventListener('click',function(e){var rt=e.target.closest('[data-rt]');if(rt){retDlg(+rt.dataset.rt);return}var rv=e.target.closest('[data-rv]');if(rv){revDlg(+rv.dataset.rv);return}var xe=e.target.closest('[data-xe]');if(xe){PEDIT=+xe.dataset.xe;render('pay');return}if(e.target.closest('[data-xc]')){PEDIT=null;render('pay');return}var xt=e.target.closest('[data-xt]');if(xt){exportTbl(xt.dataset.xt,+xt.dataset.ti||0);return}if(e.target.closest('[data-xp]')){xfile('PO_Master',poAoa(PO));return}if(e.target.closest('[data-xd]')){xfile('My_PO_Details',poAoa(myPOs()));return}if(e.target.closest('[data-xs]')){var n=LIST.exe.length?LIST.exe[0][0]:'Karthik R';xfile('PO_Master_Sample',[PHEAD,[n,'ENQ-1001','2026-11-02','ABC Supplies','PO-5501',100000,40000,60000],[n,'ENQ-1002','2026-11-05','XYZ Traders','PO-5502',250000,0,250000]]);return}});
 function fset(e){var t=e.target;if(!t.classList||!t.classList.contains('fl'))return false;var pg=fpage();FIL[pg][t.dataset.c]=t.value;applyFilters();return true}
 $('view').addEventListener('input',fset);$('view').addEventListener('change',fset);
 $('view').addEventListener('click',function(e){if(e.target.id==='fclr'){var pg=fpage();FIL[pg]={};[].forEach.call(document.querySelectorAll('.fl'),function(x){x.value=''});applyFilters()}});
@@ -373,7 +452,7 @@ if((EDIT===null||pw)&&pw.length<6){showErr('Password is too short','The password
 var body={role:k==='mgr'?'manager':'executive',name:n,username:un,email:d.get('email'),phone:d.get('phone'),manager_name:d.get('mgr')||''};
 if(EDIT===null){body.action='create';body.password=pw}else{body.action='update';body.id=LIST[k][EDIT][6];if(pw)body.password=pw}
 var wasEdit=EDIT!==null,okEl=$('ok');if(okEl){okEl.className='ok';okEl.textContent='Saving...'}
-adminFn(body).then(function(){EDIT=null;return loadAll(true)}).then(function(){render(k);$('ok').className='ok';$('ok').textContent=n+(wasEdit?' was updated.':' was added.')}).catch(function(x){var o=$('ok');if(o){o.className='err';o.textContent=x.message}else showErr('Could not save',x.message)});});$('out').addEventListener('click',function(){unsubRT();SB.auth.signOut();ME=null;PAY=[];PO=[];LIST={mgr:[],exe:[]};SNAP={pay:{},po:{}};show(false);$('p').value='';$('err').textContent='';try{history.replaceState(null,'',location.pathname)}catch(e){}});
+adminFn(body).then(function(){EDIT=null;return loadAll(true)}).then(function(){render(k);$('ok').className='ok';$('ok').textContent=n+(wasEdit?' was updated.':' was added.')}).catch(function(x){var o=$('ok');if(o){o.className='err';o.textContent=x.message}else showErr('Could not save',x.message)});});$('out').addEventListener('click',function(){unsubRT();SB.auth.signOut();ME=null;PAY=[];PO=[];EXP=[];LIST={mgr:[],exe:[]};SNAP={pay:{},po:{},exp:{}};show(false);$('p').value='';$('err').textContent='';try{history.replaceState(null,'',location.pathname)}catch(e){}});
 window.addEventListener('hashchange',function(){if(signedIn())render(location.hash.slice(1))});
 $('tg').addEventListener('click',function(){var c=$('app').classList.toggle('collapsed');this.setAttribute('aria-expanded',String(!c));try{localStorage.setItem('pr_collapsed',c?'1':'')}catch(e){}});
 try{if(localStorage.getItem('pr_collapsed')){$('app').classList.add('collapsed');$('tg').setAttribute('aria-expanded','false')}}catch(e){}
