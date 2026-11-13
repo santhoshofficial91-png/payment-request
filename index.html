@@ -145,7 +145,7 @@ function table(){
  (R.map(function(r){return '<tr><td>'+r.t+'</td><td>'+esc(r.id)+'</td><td>'+esc(r.who)+'</td><td>'+esc(r.by)+'</td><td>'+inr(r.amt)+'</td><td>'+pill(r.st)+'</td></tr>'}).join('')||'<tr><td colspan="6">No requests yet.</td></tr>')+'</tbody></table></div>'}
 
 var LIST={mgr:[],exe:[]};
-var DEPTS=['Accounts','Purchase','Exports','Delivery','Branding','Sales'];
+var DEPTS=['Accounts','Purchase','Excoso','Delivery','Branding','Sales'];
 var EDIT=null;function deptSel(k){var r=EDIT===null?null:LIST[k][EDIT],cur=r?r[4]:'';return '<div><label for="f_dept">Department</label><select id="f_dept" name="dept" required><option value="">Select department</option>'+DEPTS.map(function(d){return '<option'+(d===cur?' selected':'')+'>'+d+'</option>'}).join('')+'</select></div>'}
 function mgrSel(){var r=EDIT===null?null:LIST.exe[EDIT],cur=r?r[5]:'';return '<div><label for="f_mgr">Reporting manager</label><select id="f_mgr" name="mgr" required><option value="">Select manager</option>'+LIST.mgr.map(function(m){return '<option'+(m[0]===cur?' selected':'')+'>'+esc(m[0])+'</option>'}).join('')+'</select></div>'}function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 var ME=null,CUR='dash',PO=[],UNL=null,POEDIT=null;
