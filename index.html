@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="app-build" content="20261114112137">
+<meta name="app-build" content="20261114112524">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Payment Request</title>
 <style>
@@ -175,6 +175,8 @@ header .me{gap:14px}.so{display:inline-flex;align-items:center;gap:8px;height:40
 .pgh{display:none!important}.pager{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;padding:12px 0 4px}.pgb{min-width:34px;height:34px;padding:0 10px;border:1px solid var(--line,#d9d6ee);border-radius:8px;background:#fff;color:#4f46e5;font-weight:700;cursor:pointer}.pgb.on{background:linear-gradient(135deg,#6d28d9,#db2777);color:#fff;border-color:transparent}.pgb:disabled{opacity:.4;cursor:default}.pgl{color:var(--mute,#6b7280);font-size:13px;margin:0 6px}
 #view .ftab tbody td{padding-top:7px;padding-bottom:7px}.poscroll{max-height:none!important}
 #upd{position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.92);display:none;align-items:center;justify-content:center;padding:24px}#upd.on{display:flex}#upd .b{background:#fff;color:#111;border-radius:16px;max-width:560px;width:100%;padding:40px 32px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}#upd h2{margin:0 0 14px;font-size:28px}#upd p{margin:0 0 26px;font-size:18px;line-height:1.5;color:#333}#upd button{font-size:20px;padding:12px 56px;border:0;border-radius:10px;background:#1d4ed8;color:#fff;cursor:pointer;font-weight:600}
+#cutoff.cutbox{flex-direction:column;align-items:center;justify-content:center;gap:2px;width:3cm;min-height:3cm;padding:6px;border-radius:10px;border-width:1px;text-align:center;box-sizing:border-box;flex:none}#cutoff.cutbox .cl{font-size:10px;line-height:1.3}#cutoff.cutbox .ct{font-size:15px}#cutoff.cutbox .ctimer{font-size:14px}
+#app.collapsed .tw{overflow-x:auto!important}#app.collapsed .entry{min-width:1700px!important;table-layout:auto!important}#app.collapsed .entry th,#app.collapsed .entry td{overflow-wrap:break-word;word-break:normal}#app.collapsed .pill{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -305,8 +307,8 @@ function cutLeft(){return CUTS-istSecs()}
 function cutOver(){var x=istSecs();return x>=CUTS&&x<REOPS}
 function cutHtml(){var x=istSecs(),l=CUTS-x,o=cutOver(),w=l>0&&l<=1800,re=x>=REOPS,pd=function(n){return String(n).padStart(2,'0')},h='';
  if(w){h='<span class="ctimer" title="Time left">⏱ '+pd(Math.floor(l/60))+':'+pd(l%60)+'</span>'}
- else if(o){var r=REOPS-x;h='<span class="cl">'+(ME&&ME.role==='mgr'?'Closed for executives – reopens at <b>5:00 PM</b>. <b>Managers can still send.</b>':'Closed – reopens at <b>5:00 PM</b>. Requests now go to your manager (<b>Sample</b> goes direct to admin).')+'</span><span class="ctimer rtimer" title="Time left to reopen">⏱ '+pd(Math.floor(r/3600))+':'+pd(Math.floor(r%3600/60))+':'+pd(r%60)+'</span>'}
- else if(re){h='<span class="cl">Reopened at <b>5:00 PM</b> – open for the rest of the day</span>'}
+ else if(o){var r=REOPS-x;h='<span class="cl" title="'+(ME&&ME.role==='mgr'?'Closed for executives. Managers can still send.':'Requests now go to your manager (Sample goes direct to admin).')+'">'+(ME&&ME.role==='mgr'?'Closed (managers can send)<br>reopens <b>5:00 PM</b>':'Closed<br>reopens <b>5:00 PM</b>')+'</span><span class="ctimer rtimer" title="Time left to reopen">⏱ '+pd(Math.floor(r/3600))+':'+pd(Math.floor(r%3600/60))+':'+pd(r%60)+'</span>'}
+ else if(re){h='<span class="cl">Reopened <b>5:00 PM</b><br>open today</span>'}
  return '<div id="cutoff" class="cutbox'+(o?' over':w?' warn':re?' reop':'')+'" role="timer"><span class="cl">Cut-off Time</span><span class="ct">2:00 PM</span>'+h+'</div>'}
 var LASTOVER=null;
 setInterval(function(){var el=document.getElementById('cutoff');if(!el){LASTOVER=null;return}var o=cutOver();
