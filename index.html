@@ -162,6 +162,7 @@ td:first-child{color:#4c1d95}
 .cutbox .ct{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .cutbox.warn .ct,.cutbox.over .ct{background:none;-webkit-background-clip:initial;color:inherit}
 .ok{color:#047857}
+header .me{gap:14px}.so{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;margin-left:6px;border:0;border-radius:10px;background:linear-gradient(135deg,#f43f5e,#f97316);color:#fff;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 6px 16px rgba(244,63,94,.3)}.so:hover{filter:brightness(1.08)}.so svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}@media (max-width:520px){.so span{display:none}.so{padding:0 11px}}
 @media (max-width:900px){#login{grid-template-columns:1fr}.lhero{display:none}.lside{min-height:100vh}}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--head:#2a2160;--line:#2f2a66;--app:#141033}
  body{background:#0d0a24}#app{background:radial-gradient(900px 420px at 0% 0%,#2a1670 0,transparent 60%),radial-gradient(800px 380px at 100% 0%,#4a1d3a 0,transparent 55%),#0f0b2a}
@@ -201,7 +202,7 @@ td:first-child{color:#4c1d95}
     <button class="nav" id="out" title="Sign out"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>Sign out</button>
   </aside>
   <main>
-    <header><div class="hl"><button class="tg" id="tg" type="button" aria-label="Hide or show the menu" aria-expanded="true" title="Hide / show menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h2 id="title">Payment Request</h2></div><div class="me"><div class="av" id="av">A</div><div><b id="mn">Admin</b><small id="ml">Administrator</small></div></div></header>
+    <header><div class="hl"><button class="tg" id="tg" type="button" aria-label="Hide or show the menu" aria-expanded="true" title="Hide / show menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><h2 id="title">Payment Request</h2></div><div class="me"><div class="av" id="av">A</div><div><b id="mn">Admin</b><small id="ml">Administrator</small></div><button class="so" id="out2" type="button" title="Sign out" aria-label="Sign out"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span>Sign out</span></button></div></header>
     <div class="pad" id="view"></div>
   </main>
 </div>
@@ -595,7 +596,7 @@ if((EDIT===null||pw)&&pw.length<6){showErr('Password is too short','The password
 var body={role:k==='mgr'?'manager':'executive',name:n,username:un,email:d.get('email'),phone:d.get('phone'),manager_name:d.get('mgr')||'',department:d.get('dept')||''};
 if(EDIT===null){body.action='create';body.password=pw}else{body.action='update';body.id=LIST[k][EDIT][6];if(pw)body.password=pw}
 var wasEdit=EDIT!==null,okEl=$('ok');if(okEl){okEl.className='ok';okEl.textContent='Saving...'}
-adminFn(body).then(function(){EDIT=null;return loadAll(true)}).then(function(){render(k);$('ok').className='ok';$('ok').textContent=n+(wasEdit?' was updated.':' was added.')}).catch(function(x){var o=$('ok');if(o){o.className='err';o.textContent=x.message}else showErr('Could not save',x.message)});});$('out').addEventListener('click',function(){unsubRT();SB.auth.signOut();ME=null;PAY=[];PO=[];EXP=[];LIST={mgr:[],exe:[]};SNAP={pay:{},po:{},exp:{}};show(false);$('p').value='';$('err').textContent='';try{history.replaceState(null,'',location.pathname)}catch(e){}});
+adminFn(body).then(function(){EDIT=null;return loadAll(true)}).then(function(){render(k);$('ok').className='ok';$('ok').textContent=n+(wasEdit?' was updated.':' was added.')}).catch(function(x){var o=$('ok');if(o){o.className='err';o.textContent=x.message}else showErr('Could not save',x.message)});});var SIGNOUT=function(){unsubRT();SB.auth.signOut();ME=null;PAY=[];PO=[];EXP=[];LIST={mgr:[],exe:[]};SNAP={pay:{},po:{},exp:{}};show(false);$('p').value='';$('err').textContent='';try{history.replaceState(null,'',location.pathname)}catch(e){}};$('out').addEventListener('click',SIGNOUT);$('out2').addEventListener('click',SIGNOUT);
 window.addEventListener('hashchange',function(){if(signedIn())render(location.hash.slice(1))});
 $('tg').addEventListener('click',function(){var c=$('app').classList.toggle('collapsed');this.setAttribute('aria-expanded',String(!c));try{localStorage.setItem('pr_collapsed',c?'1':'')}catch(e){}});
 try{if(localStorage.getItem('pr_collapsed')){$('app').classList.add('collapsed');$('tg').setAttribute('aria-expanded','false')}}catch(e){}
