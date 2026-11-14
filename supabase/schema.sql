@@ -114,3 +114,4 @@ alter publication supabase_realtime add table public.payments, public.po, public
 -- Later migration: expenses_guard no longer forces req_date on update (request date is entered manually).
 -- Later migration: profile_secrets (admin-readable passwords); HR department.
 -- Later migration: is_sub_admin() + po insert/update policies allow Sub Admin (executive with department 'Sub Admin').
+-- Later migration: pr_status 'With Manager' (executive send after cut-off goes to manager; Sample bypasses cut-off); policies/guard/mgr_send_requests updated.
