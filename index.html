@@ -83,11 +83,104 @@ td:first-child{font-weight:800}
 @media (max-width:640px){#app{grid-template-columns:64px 1fr}.nav{font-size:0;gap:0;justify-content:center;padding:13px 0}.logo{padding:6px 0 16px;text-align:center}.logo b{font-size:15px}.logo small{display:none}.stats{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.lcard{padding:28px}.top{flex-direction:column;gap:10px}}
 .tbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.sb{display:inline-flex;align-items:center;height:34px;padding:0 14px;border:0;border-radius:8px;background:var(--teal);color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}.sb:hover{filter:brightness(1.1)}
 .fgap td{height:96px;padding:0!important;border:0!important;background:transparent!important}.frow td{background:var(--head);padding:6px 8px;border-top:1px solid var(--line,#e4e2f5)}.frow input,.frow select{height:32px;width:100%;min-width:110px;font-size:13px;padding:0 8px;border-width:1px;border-radius:8px;font-weight:400}.fbar{display:flex;gap:14px;align-items:center;margin:0 0 10px;min-height:22px;color:var(--mute);font-size:14px;font-weight:600}
+
+/* ===== colourful theme layer ===== */
+:root{--g1:#7c3aed;--g2:#db2777;--g3:#f97316;--grad:linear-gradient(135deg,#7c3aed 0%,#c026d3 55%,#f97316 100%);--grad2:linear-gradient(135deg,#0ea5a4,#2563eb);--head:#e9e0ff;--line:#e3dcf7;--app:#f5f2ff;--teal:#0f8f86;--teal-s:#d6f5f0;--pur:#6d28d9;--pur-s:#ece4ff}
+body{background:#f5f2ff}
+#app{background:radial-gradient(900px 420px at 0% 0%,#ece3ff 0,transparent 60%),radial-gradient(800px 380px at 100% 0%,#ffe6d6 0,transparent 55%),#f6f3ff}
+/* login */
+#login{overflow:hidden;padding:0;grid-template-columns:1.15fr 1fr;place-items:stretch;background:radial-gradient(900px 600px at 15% 10%,#6d28d9 0,transparent 60%),radial-gradient(800px 600px at 90% 95%,#f97316 0,transparent 55%),linear-gradient(135deg,#1b1146,#3b1a86 55%,#7a1f8f)}
+.lhero{position:relative;overflow:visible;display:flex;flex-direction:column;justify-content:center;padding:6vw;color:#fff}
+.lhero:before,.lhero:after{content:"";position:absolute;border-radius:50%;filter:blur(2px);opacity:.55}
+.lhero:before{width:380px;height:380px;right:-90px;top:-80px;background:radial-gradient(circle at 30% 30%,#ff9ad5,#7c3aed 70%)}
+.lhero:after{width:300px;height:300px;left:-80px;bottom:-90px;background:radial-gradient(circle at 60% 40%,#ffd08a,#f97316 70%)}
+.lhero>*{position:relative;z-index:1}
+.lhero .lg{font-size:clamp(44px,6vw,76px);font-weight:900;letter-spacing:-2px;line-height:1;background:linear-gradient(90deg,#fff,#ffd6f0 60%,#ffc89a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lhero .ls{font-size:13px;font-weight:800;letter-spacing:3px;color:#e9d5ff;margin:8px 0 38px}
+.lhero h2{font-size:clamp(26px,3.2vw,40px);line-height:1.15;margin:0 0 14px;max-width:560px}
+.lhero p{font-size:18px;color:#e7defa;max-width:520px;margin:0 0 30px;line-height:1.5}
+.lhero ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px}
+.lhero li{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);padding:9px 16px;border-radius:999px;font-weight:700;font-size:14px}
+.lside{position:relative;z-index:2;display:grid;place-items:center;padding:24px}
+.lcard{position:relative;max-width:460px;border-radius:26px;padding:42px 38px 34px;box-shadow:0 30px 80px rgba(10,5,40,.45);overflow:hidden}
+.lcard:before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:var(--grad)}
+.lcard h1{font-size:38px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+.brand{color:var(--g1)}
+.btn{background:var(--grad);box-shadow:0 10px 24px rgba(124,58,237,.35);transition:transform .15s,box-shadow .15s}
+.btn:hover{filter:none;transform:translateY(-1px);box-shadow:0 14px 30px rgba(124,58,237,.45)}
+input:focus,select:focus{border-color:var(--g1);box-shadow:0 0 0 4px rgba(124,58,237,.18)}
+:focus-visible{outline-color:var(--g1)}
+/* sidebar */
+aside{background:linear-gradient(185deg,#1b1146 0%,#2b1672 55%,#52207f 100%);border-right:0;box-shadow:4px 0 28px rgba(40,20,100,.25)}
+.logo b{background:linear-gradient(90deg,#d8c2ff,#ff9ad5 55%,#ffb37a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo small{color:#d9c8ff}
+.nav{color:#d8d0f5;transition:background .15s,transform .15s}
+.nav:hover{background:rgba(255,255,255,.1);transform:translateX(2px)}
+.nav.on{background:linear-gradient(90deg,#7c3aed,#db2777);color:#fff;box-shadow:0 8px 20px rgba(219,39,119,.35)}
+.nav svg{color:#c9b8ff}.nav.on svg{color:#fff}
+.nav[data-k=dash] svg{color:#7dd3fc}.nav[data-k=prof] svg{color:#f9a8d4}.nav[data-k=mgr] svg{color:#c4b5fd}.nav[data-k=exe] svg{color:#86efac}.nav[data-k=po] svg{color:#fcd34d}.nav[data-k=pay] svg{color:#fdba74}.nav[data-k=paid] svg{color:#5eead4}.nav[data-k=sent] svg{color:#93c5fd}.nav[data-k=pod] svg{color:#fcd34d}.nav[data-k=exp] svg{color:#f9a8d4}.nav[data-k=expaid] svg{color:#a5b4fc}#out svg{color:#fca5a5}
+.nav.on svg{color:#fff!important}
+/* header */
+header{background:rgba(255,255,255,.85);backdrop-filter:blur(8px);border-bottom:0;box-shadow:0 2px 0 0 transparent,0 6px 20px rgba(76,29,149,.06);position:relative}
+header:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--grad)}
+header h2{color:#2a1670}
+.me{background:#fff;border-color:#e3dcf7;box-shadow:0 2px 10px rgba(76,29,149,.08)}
+.av{background:var(--grad)}
+.top h1{background:linear-gradient(90deg,#4c1d95,#c026d3 70%,#f97316);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+.chip{background:linear-gradient(135deg,#ede4ff,#ffe3f1);color:#6d28d9;border:1px solid #e3d5ff}
+/* stats */
+.stat{border:0;color:#fff;box-shadow:0 14px 30px rgba(76,29,149,.18);position:relative;overflow:hidden}
+.stat:after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12)}
+.stat span{color:rgba(255,255,255,.9);font-weight:600}
+.stat .ico{background:rgba(255,255,255,.22);color:#fff;z-index:1}
+.stats .stat:nth-child(1){background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.stats .stat:nth-child(2){background:linear-gradient(135deg,#0ea5a4,#14b8a6 60%,#22c55e)}
+.stats .stat:nth-child(3){background:linear-gradient(135deg,#f97316,#fb923c 60%,#f59e0b)}
+.stats .stat:nth-child(4){background:linear-gradient(135deg,#db2777,#f43f5e)}
+.stats .stat:nth-child(5){background:linear-gradient(135deg,#2563eb,#38bdf8)}
+.stats .stat:nth-child(6){background:linear-gradient(135deg,#4f46e5,#8b5cf6)}
+/* panels, tables */
+.panel{border:1px solid #e7e0fa;box-shadow:0 10px 30px rgba(76,29,149,.08);background:linear-gradient(90deg,#7c3aed,#db2777,#f97316) top/100% 4px no-repeat,var(--card);padding-top:26px}
+.ph h3{color:#2a1670}
+th{background:linear-gradient(180deg,#efe8ff,#e3d9fb);color:#3b2a85}
+.frow td{background:#f1ecff}
+.frow input,.frow select{background:#fff;border-color:#d9cff5}
+tbody tr:hover td{background:#faf6ff}
+.newrow,.newrow td{background:linear-gradient(90deg,#d9f7f1,#e0f2fe)!important}
+.editing td{background:#e0f2fe!important}
+td:first-child{color:#4c1d95}
+.sb{background:var(--grad2);box-shadow:0 4px 12px rgba(14,165,164,.3);border-radius:9px}
+.sb:hover{filter:brightness(1.08)}
+.add{background:linear-gradient(135deg,#7c3aed,#db2777);box-shadow:0 4px 14px rgba(124,58,237,.3)}
+.link{color:#6d28d9}
+.dbox{border-color:var(--g1)}.dbox .row .btn{background:var(--grad)}.dbox .row .btn.sec{background:#ece4ff;color:#3b2a85;box-shadow:none}
+/* pills */
+.pill{box-shadow:inset 0 0 0 1px rgba(0,0,0,.05)}
+.Pending{background:#fff1cc;color:#8a5200}.Approved{background:#d1fae5;color:#047857}.Paid{background:#dbeafe;color:#1d4ed8}.UnderProcess{background:#e0e7ff;color:#4338ca}.Rejected{background:#ffe0e0;color:#c81e1e}.RequestSent{background:#cffafe;color:#0e7490}.RequestNotSent{background:#fde7d3;color:#b45309}.Returned{background:#fce7f3;color:#be185d}
+.High{background:#ffe0e0;color:#c81e1e}.Medium{background:#fff1cc;color:#8a5200}.Low{background:#d1fae5;color:#047857}
+.cutbox{background:linear-gradient(135deg,#fff,#f4ecff);border-color:#d9c8ff;box-shadow:0 8px 22px rgba(124,58,237,.12)}
+.cutbox .ct{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cutbox.warn .ct,.cutbox.over .ct{background:none;-webkit-background-clip:initial;color:inherit}
+.ok{color:#047857}
+@media (max-width:900px){#login{grid-template-columns:1fr}.lhero{display:none}.lside{min-height:100vh}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--head:#2a2160;--line:#2f2a66;--app:#141033}
+ body{background:#0d0a24}#app{background:radial-gradient(900px 420px at 0% 0%,#2a1670 0,transparent 60%),radial-gradient(800px 380px at 100% 0%,#4a1d3a 0,transparent 55%),#0f0b2a}
+ header{background:rgba(26,22,64,.85)}header h2{color:#f0e9ff}.me{background:#1a1640;border-color:#2f2a66}.ph h3{color:#f0e9ff}td:first-child{color:#d8c2ff}
+ th{background:linear-gradient(180deg,#2e2570,#251d5e);color:#d8c9ff}.frow td{background:#221a56}.frow input,.frow select{background:#1a1640;border-color:#3a3280}
+ tbody tr:hover td{background:#221c52}.newrow,.newrow td{background:linear-gradient(90deg,#103d46,#12304d)!important}.editing td{background:#12304d!important}
+ .link{color:#c4a8ff}.cutbox{background:linear-gradient(135deg,#1a1640,#2a1c5e);border-color:#4a3a90}.lcard h1{-webkit-text-fill-color:transparent}}
 </style>
 </head>
 <body>
 
 <section id="login">
+  <div class="lhero" aria-hidden="true">
+    <div class="lg">EXPERT</div><div class="ls">CORPORATE SOLUTIONS</div>
+    <h2>Supplier and expense payments, all in one place.</h2>
+    <p>Raise requests, track approvals and see every payment update live, from any system.</p>
+    <ul><li>&#9889; Real-time updates</li><li>&#128101; Admin, Manager &amp; Executive roles</li><li>&#9200; 2 PM cut-off timer</li><li>&#129534; Voucher export</li></ul>
+  </div>
+  <div class="lside">
   <form class="lcard" id="lf" onsubmit="return false">
     <div class="brand"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>PAYMENT REQUEST</div>
     <h1>Sign in</h1>
@@ -98,6 +191,7 @@ td:first-child{font-weight:800}
     <button class="btn" id="go" type="submit">Sign in</button>
     <div class="secure">🔒 Secure access for your team</div>
   </form>
+  </div>
 </section>
 
 <div id="app" class="hide">
