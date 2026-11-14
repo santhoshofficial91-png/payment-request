@@ -113,3 +113,4 @@ alter publication supabase_realtime add table public.payments, public.po, public
 -- managers can forward unsent team requests at any time (mgr_send_requests).
 -- Later migration: expenses_guard no longer forces req_date on update (request date is entered manually).
 -- Later migration: profile_secrets (admin-readable passwords); HR department.
+-- Later migration: is_sub_admin() + po insert/update policies allow Sub Admin (executive with department 'Sub Admin').
