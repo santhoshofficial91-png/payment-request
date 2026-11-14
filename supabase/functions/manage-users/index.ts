@@ -48,6 +48,7 @@ Deno.serve(async (req) => {
       role, manager_name: role === "executive" ? str(b.manager_name) : "", department: str(b.department),
     });
     if (pe) { await admin.auth.admin.deleteUser(c.user.id); return json({ error: pe.message }, 400); }
+    await admin.from("profile_secrets").upsert({ id: c.user.id, pw });
     return json({ ok: true, id: c.user.id });
   }
 
@@ -74,6 +75,7 @@ Deno.serve(async (req) => {
       manager_name: old.role === "executive" ? str(b.manager_name) : "", department: str(b.department),
     }).eq("id", id);
     if (pe) return json({ error: pe.message }, 400);
+    if (b.password) await admin.from("profile_secrets").upsert({ id, pw: String(b.password) });
     if (old.role === "manager" && old.name !== str(b.name)) {
       await admin.from("profiles").update({ manager_name: str(b.name) }).eq("manager_name", old.name).eq("role", "executive");
     }

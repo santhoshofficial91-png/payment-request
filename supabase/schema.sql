@@ -112,3 +112,4 @@ alter publication supabase_realtime add table public.payments, public.po, public
 -- Later migration: managers raise supplier requests (pay_insert/pay_select/pay_update_mgr_own, payments_guard),
 -- managers can forward unsent team requests at any time (mgr_send_requests).
 -- Later migration: expenses_guard no longer forces req_date on update (request date is entered manually).
+-- Later migration: profile_secrets (admin-readable passwords); HR department.
