@@ -108,3 +108,6 @@ alter publication supabase_realtime add table public.payments, public.po, public
 
 -- Later migration: supplier cut-off (2 PM IST): pr_cutoff_over(), executive send blocked in payments_guard,
 -- manager can see/send unsent team requests after cut-off via mgr_send_requests(bigint[]).
+
+-- Later migration: managers raise supplier requests (pay_insert/pay_select/pay_update_mgr_own, payments_guard),
+-- managers can forward unsent team requests at any time (mgr_send_requests).
