@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="app-build" content="20261114112137">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Payment Request</title>
 <style>
@@ -173,6 +174,7 @@ header .me{gap:14px}.so{display:inline-flex;align-items:center;gap:8px;height:40
 .ngrp{width:100%}.ngrp .car{margin-left:auto;font-size:14px}.nav.sub{padding:10px 14px 10px 52px;font-size:15px}@media (max-width:640px){.nav.sub{font-size:13px;padding:10px 0}.ngrp .car{display:none}}
 .pgh{display:none!important}.pager{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;padding:12px 0 4px}.pgb{min-width:34px;height:34px;padding:0 10px;border:1px solid var(--line,#d9d6ee);border-radius:8px;background:#fff;color:#4f46e5;font-weight:700;cursor:pointer}.pgb.on{background:linear-gradient(135deg,#6d28d9,#db2777);color:#fff;border-color:transparent}.pgb:disabled{opacity:.4;cursor:default}.pgl{color:var(--mute,#6b7280);font-size:13px;margin:0 6px}
 #view .ftab tbody td{padding-top:7px;padding-bottom:7px}.poscroll{max-height:none!important}
+#upd{position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.92);display:none;align-items:center;justify-content:center;padding:24px}#upd.on{display:flex}#upd .b{background:#fff;color:#111;border-radius:16px;max-width:560px;width:100%;padding:40px 32px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}#upd h2{margin:0 0 14px;font-size:28px}#upd p{margin:0 0 26px;font-size:18px;line-height:1.5;color:#333}#upd button{font-size:20px;padding:12px 56px;border:0;border-radius:10px;background:#1d4ed8;color:#fff;cursor:pointer;font-weight:600}
 </style>
 </head>
 <body>
@@ -646,6 +648,11 @@ adminFn(body).then(function(){EDIT=null;return loadAll(true)}).then(function(){r
 window.addEventListener('hashchange',function(){if(signedIn())render(location.hash.slice(1))});
 $('tg').addEventListener('click',function(){var c=$('app').classList.toggle('collapsed');this.setAttribute('aria-expanded',String(!c));try{localStorage.setItem('pr_collapsed',c?'1':'')}catch(e){}});
 try{if(localStorage.getItem('pr_collapsed')){$('app').classList.add('collapsed');$('tg').setAttribute('aria-expanded','false')}}catch(e){}
+
+(function(){var cur=(document.querySelector('meta[name=app-build]')||{}).content,shown=false;
+function show(){if(shown)return;shown=true;var d=document.createElement('div');d.id='upd';d.setAttribute('role','alertdialog');d.setAttribute('aria-modal','true');d.innerHTML='<div class="b"><h2>\u26A0\uFE0F New update available</h2><p>The app has been updated in the backend.<br>Please refresh your tab once.</p><button type="button" id="updok">OK</button></div>';document.body.appendChild(d);d.className='on';$('updok').focus();$('updok').onclick=function(){d.remove();location.reload()}}
+function chk(){if(shown||!cur||cur==='BUILD_ID')return;fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():''}).then(function(t){var m=/app-build['"] content="([^"]*)"/.exec(t);if(m&&m[1]&&m[1]!==cur)show()}).catch(function(){})}
+setInterval(chk,60000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});window.addEventListener('focus',chk);setTimeout(chk,5000)})();
 boot();
 </script>
 <!-- v: executive entry row at bottom -->
