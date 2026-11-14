@@ -115,3 +115,6 @@ alter publication supabase_realtime add table public.payments, public.po, public
 -- Later migration: profile_secrets (admin-readable passwords); HR department.
 -- Later migration: is_sub_admin() + po insert/update policies allow Sub Admin (executive with department 'Sub Admin').
 -- Later migration: pr_status 'With Manager' (executive send after cut-off goes to manager; Sample bypasses cut-off); policies/guard/mgr_send_requests updated.
+
+-- Later migration: sent_at (bigint ms) on payments & expenses, stamped by trigger zz_stamp_sent (function stamp_sent_at)
+-- when pr_status first becomes 'Request Sent' / 'With Manager'; reset to 0 when the request goes back to 'Request Not Sent'.
