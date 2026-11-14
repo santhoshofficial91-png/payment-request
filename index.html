@@ -238,7 +238,7 @@ function evisD(){if(!ME)return [];return ME.role==='admin'?EXP.filter(function(r
 function table(){
  var A=vis().filter(function(r){return ME.role!=='admin'||r[13]==='Pending'}).map(function(r){return {t:'Supplier',id:r[0],who:r[5],by:r[1],amt:r[12],st:r[13],d:r[3]||'',n:+r[19]||0}}),B=evisD().filter(function(r){return ME.role!=='admin'||r[6]==='Pending'}).map(function(r){return {t:'Expense',id:r[0],who:r[4],by:r[1],amt:r[5],st:r[6],d:r[2]||'',n:+r[12]||0}});
  var R=A.concat(B).sort(function(x,y){return x.d<y.d?1:x.d>y.d?-1:(y.n-x.n)}).slice(0,100),nm=LIST.exe.concat(LIST.mgr).map(function(e){return e[0]});R.forEach(function(r){if(nm.indexOf(r.by)<0)nm.push(r.by)});
- return fbar('dash')+'<div class="tw"><table class="ftab" data-off="0"><thead>'+frow('dash',0,0,nm)+FGAP+'<tr><th>Type</th><th>Request ID</th><th>Supplier / Paid To</th><th>Requested by</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+
+ return fbar('dash')+'<div class="tw"><table class="ftab" data-off="0"><thead>'+frow('dash',0,0,nm)+FGAP+(ME.role==='admin'?'<tr class="totrow"><td></td><td></td><td></td><td style="text-align:right;font-weight:700">Total Pending</td><td style="font-weight:800;color:#4f46e5">'+inr(R.reduce(function(a,r){return a+(+r.amt||0)},0))+'</td><td></td></tr>':'')+'<tr><th>Type</th><th>Request ID</th><th>Supplier / Paid To</th><th>Requested by</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+
  (R.map(function(r){return '<tr><td>'+r.t+'</td><td>'+esc(r.id)+'</td><td>'+esc(r.who)+'</td><td>'+esc(r.by)+'</td><td>'+inr(r.amt)+'</td><td>'+pill(r.st)+'</td></tr>'}).join('')||'<tr><td colspan="6">No pending requests.</td></tr>')+'</tbody></table></div>'}
 
 var LIST={mgr:[],exe:[]};
