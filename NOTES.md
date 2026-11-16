@@ -27,3 +27,6 @@ pr_status: 'Request Not Sent' | 'Request Sent' | 'With Manager'. sent_at is stam
 - 10 rows/page pagination, column filters, entry row at the bottom of request pages, Import Text on Expense Request, admin delete options, PO Master Edit/Delete only.
 - Full-page mode (hamburger): table min-width 1700px with horizontal scroll; Req Amt and Status always fully visible. Cut-off timer box ~3cm.
 - DB: RLS + security-definer helpers my_role(), is_my_team(), pr_cutoff_over(), is_sub_admin(); triggers payments_guard, expenses_guard, zz_stamp_sent; RPCs revoke_request, revoke_expense, mgr_send_requests; table profile_secrets (admin-only passwords shown in edit forms).
+
+## Update notice (before every deployment)
+Admin dashboard has "Announce update" button -> all users get a full-screen 1-minute warning (OK) + countdown bar, then a blocking "update in progress" screen for 5 min (auto-clears; admin can press "Update done"). Do this BEFORE pushing a deployment when users are active.

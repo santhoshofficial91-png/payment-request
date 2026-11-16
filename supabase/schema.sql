@@ -118,3 +118,6 @@ alter publication supabase_realtime add table public.payments, public.po, public
 
 -- Later migration: sent_at (bigint ms) on payments & expenses, stamped by trigger zz_stamp_sent (function stamp_sent_at)
 -- when pr_status first becomes 'Request Sent' / 'With Manager'; reset to 0 when the request goes back to 'Request Not Sent'.
+
+-- Later migration: update notice. Table app_notice (single row), RPCs get_notice(), start_update_notice() (admin), end_update_notice() (admin).
+-- Phases: warn (60s) -> busy (300s, users blocked) -> idle. Clients poll get_notice() every 5s.
