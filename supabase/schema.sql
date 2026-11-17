@@ -121,3 +121,5 @@ alter publication supabase_realtime add table public.payments, public.po, public
 
 -- Later migration: update notice. Table app_notice (single row), RPCs get_notice(), start_update_notice() (admin), end_update_notice() (admin).
 -- Phases: warn (60s) -> busy (300s, users blocked) -> idle. Clients poll get_notice() every 5s.
+
+-- Later migration: payments.advice jsonb (payment advice parsed from bank PDF: amt, ben, snd, dt, ref, rem, st); trigger zz_advice_guard lets only admin write it.

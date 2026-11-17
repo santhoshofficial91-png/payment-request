@@ -30,3 +30,6 @@ pr_status: 'Request Not Sent' | 'Request Sent' | 'With Manager'. sent_at is stam
 
 ## Update notice (before every deployment)
 Admin dashboard has "Announce update" button -> all users get a full-screen 1-minute warning (OK) + countdown bar, then a blocking "update in progress" screen for 5 min (auto-clears; admin can press "Update done"). Do this BEFORE pushing a deployment when users are active.
+
+## Payment advice import
+Admin, Supplier Payment Request page: "Import Payment Advice" (multiple zip/PDF). PDFs read in the browser (pdf.js + JSZip, lazy-loaded from cdnjs). Match = PO number (digits in Remarks vs PO digits) + exact amount (Sample purpose: remarks "Sample" + amount + loose supplier name). Matched -> status Paid, PO paid updated, advice stored in payments.advice. "Payment Advice" button next to Paid status shows copyable WhatsApp-style text.
